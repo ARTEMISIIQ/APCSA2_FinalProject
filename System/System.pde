@@ -1,12 +1,20 @@
 import java.util.*;
 
-public class System{
   ArrayList<PVector> grid = new ArrayList<>();
   
-  float y1=
+  Camera camera = new Camera(100,0.00001,0.00001);
   
-  PVector vertLine = new PVector(1,y1/x1,-(x1 + y1*y1/x1) / z1);
-  PVector horiLine = new PVector(abs(y1), Math.signum(y1) * -x1, 0);
+  PVector cameraCords = camera.getVector();
+  
+  float x1 = cameraCords.x;
+  float y1 = cameraCords.y;
+  float z1 = cameraCords.z;
+  float cameraMagnitude = camera.getMag();
+  float cameraAngle_1 = camera.getAng1();
+  float cameraAngle_2 = camera.getAng2();
+  
+  PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
+  PVector horiLine = new PVector(y1,-x1, 0);
   
   float pi = 3.14159263589;
   float e = 2.718281828;
@@ -68,29 +76,24 @@ public class System{
   
   void keyPressed(){
     if (keyCode == RIGHT){
-      cameraAngle_1 -= 0.0314;
+      camera.setAng1(cameraAngle_1-pi/100);
     }
     if (keyCode == LEFT){
-      cameraAngle_1 += 0.0314;
+      camera.setAng1(cameraAngle_1+pi/100);
     }
     if (keyCode == UP){
-      cameraAngle_2 += 0.0314;
+      camera.setAng2(cameraAngle_2+pi/100);
     }
     if (keyCode == DOWN){
-      cameraAngle_2 -= 0.0314;
+      camera.setAng2(cameraAngle_2-pi/100);
     }
     if (key == 'e'){
-      cameraMagnitude += 5;
+      camera.setMag(cameraMagnitude+5);
     }
     if (key == 'q'){
-      cameraMagnitude -= 5;
+      camera.setMag(cameraMagnitude-5);
     }
-    cameraAngle_1 = (cameraAngle_1 + 2 * pi) % (2 * pi);
-    cameraAngle_2 = (cameraAngle_2 + 2 * pi) % (2 * pi);
-    x1 = cameraMagnitude * cos(cameraAngle_1) *  sin(cameraAngle_2);
-    z1 = cameraMagnitude * cos(cameraAngle_2);
-    y1 = cameraMagnitude * sin(cameraAngle_1) * sin(cameraAngle_2);
-    cameraCords = new PVector(x1,y1,z1);
+    cameraCords = camera.getVector();
   }
   
   PVector project3d(PVector point){
@@ -118,4 +121,3 @@ public class System{
     }
     return new PVector(0,0);
   }
-}
