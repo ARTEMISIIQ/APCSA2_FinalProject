@@ -2,16 +2,17 @@ import java.util.*;
 
 ArrayList<PVector> grid = new ArrayList<>();
 
-float cameraMagnitude = 100;
-float cameraAngle_1 = 0.0001;
-float cameraAngle_2 = 0.0001;
+float cameraMagnitude = 5;
+float cameraAngle_1 = 0;
+float cameraAngle_2 = 0;
 
 float x1 = cameraMagnitude * cos(cameraAngle_1) *  sin(cameraAngle_2);
 float z1 = cameraMagnitude * cos(cameraAngle_2);
 float y1 = cameraMagnitude * sin(cameraAngle_1) * sin(cameraAngle_2);
 
-PVector vertLine = new PVector(1,y1/x1,-(x1 + y1*y1/x1) / z1);
+PVector vertLine = new PVector(-x1*z1,-y1*z1, x1*x1 + y1*y1);
 PVector horiLine = new PVector(y1, -x1, 0);
+PVector normalVector = new PVector(x1,y1,z1);
 
 PVector cameraCords = new PVector(x1,y1,z1);
 
@@ -22,24 +23,12 @@ float e = 2.718281828;
 float scale = 50;
 
 void setup(){
- size(1000,1000);
+ size(500,500);
  //colorMode(HSB, 360, 100, 100);
  colorMode(RGB, 255, 255, 255);
  background(255);
- //for (int i = 0; i < 8; i++){
- //  String s = Integer.toBinaryString(i);
- //  while (s.length() < 3){
- //    s = "0" + s;
- //  }
- //  float x = Integer.parseInt(s.substring(0,1));
- //  float y = Integer.parseInt(s.substring(1,2));
- //  float z = Integer.parseInt(s.substring(2,3));
- //  grid.add(new PVector(x,y,z));
- //}
- //for (int i = 0; i < 1000; i++){
- //  grid.add(PVector.random3D().setMag(3));
- //
- float s = 10;
+ //grid.add(new PVector(-0.7,-3,1.8));
+ //float s = 10;
  float m = 0.25;
  for (float i = -10; i < 10; i+=m){
    for (float j = -10; j < 10; j+=m){
@@ -53,39 +42,38 @@ void setup(){
 }
 
 float f(float x, float y, float z, float k){
-  float c = 10*abs(x)/(x*x*sin(x)*sin(x)+y*y*sin(y)*sin(y)+1+abs(x*y))-z;
-  return abs(c);
+   float c = max(abs(x),abs(y),abs(z))-k;
+   return c;
 }
 
 void draw(){
   background(255);
-
-  vertLine = new PVector(1,y1/x1,-((x1 + y1*y1/x1) / z1));
-  horiLine = new PVector(y1, x1, 0);
+  
+  vertLine = new PVector(-1,-y1/x1,(x1 + y1*y1/x1) / z1);
+  horiLine = new PVector(1, -x1 / y1, 0);
   
   for (PVector point: grid){
     PVector new3dCoords = project3d(point);
     PVector newCoords = project2d(new3dCoords);
     float d = point.dist(cameraCords);
     //fill(100, 100, 3000/d);
-    float m = d / 10;
-    fill(abs(newCoords.x)*256%256,abs(newCoords.y)*256%256,abs(newCoords.z)*256%256);
-    ellipse(newCoords.x * width / cameraMagnitude + width/2, newCoords.y * height / cameraMagnitude + height/2, 1000 / d / d * m, 1000 / d / d * m);
+    fill(point.x*255,point.y*255,point.z*255);
+    ellipse(newCoords.x * width / cameraMagnitude + width/2, newCoords.y * height / cameraMagnitude + height/2, 100 / d / d, 100 / d / d);
   }
 }
 
 void keyPressed(){
   if (keyCode == RIGHT){
-    cameraAngle_1 -= 0.0314;
+    cameraAngle_1 -= pi / 100;
   }
   if (keyCode == LEFT){
-    cameraAngle_1 += 0.0314;
+    cameraAngle_1 += pi / 100;
   }
   if (keyCode == UP){
-    cameraAngle_2 += 0.0314;
+    cameraAngle_2 += pi / 100;
   }
   if (keyCode == DOWN){
-    cameraAngle_2 -= 0.0314;
+    cameraAngle_2 -= pi / 100;
   }
   if (key == 'e'){
     cameraMagnitude += 5;
@@ -115,23 +103,17 @@ PVector project3d(PVector point){
 }
 
 PVector project2d(PVector transformedPoint){
-  if (transformedPoint.mag() != 0){
-    double theta = acos(max(-1,min((transformedPoint.dot(vertLine) / transformedPoint.mag() / vertLine.mag()),1)));
-    if (cameraCords.dot(transformedPoint.cross(vertLine)) < 0){
-      theta *= -1;
+    PVector jVector = vertLine.copy().setMag(1);
+    PVector iVector = horiLine.copy().setMag(1);
+    
+    float y = 0;
+    if (jVector.z != 0){
+      y = transformedPoint.z / jVector.z;
     }
-    theta += pi/2;
-    if (cameraCords.z < 0){
-      theta = pi + theta;
+    float x = 0;
+    if (iVector.x != 0){
+      x = (transformedPoint.x - y * jVector.x) / iVector.x;
     }
-    if (cameraCords.x < 0){
-      theta = pi + theta;
-    }
-   if (cameraCords.y < 0){
-      theta = pi + theta;
-    }
-    float r = transformedPoint.mag();
-    return new PVector(r * cos((float) theta), r * sin((float) theta));
-  }
-  return new PVector(0,0);
+    println(new PVector(x,y));
+    return new PVector(x,y);
 }
