@@ -42,7 +42,7 @@ import java.util.*;
    for (float i = -10; i < 10; i+=m){
      for (float j = -10; j < 10; j+=m){
        for (float k = -10; k < 10; k+=m){
-         if (f(i,j,k,1) < 0.5){
+         if (f(i,j,k) < 0.5){
            grid.add(new PVector(i,j,k));
          }
        }
@@ -50,7 +50,7 @@ import java.util.*;
    }
   }
   
-  float f(float x, float y, float z, float k){
+  float f(float x, float y, float z){
     float c = x*x+y*y-z-sin(z)*x;
     return abs(c);
   }
