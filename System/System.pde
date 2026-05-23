@@ -23,7 +23,8 @@ import java.util.*;
   
   void setup(){
    size(500,500);
-   Graph = new GraphRectangular(inputSys, equation, 1.0);
+   inputSys.setInput(equation);
+   Graph = new GraphRectangular(inputSys, 0.25);
   }
   
   void draw(){
@@ -73,7 +74,7 @@ import java.util.*;
       inputSys.addChar(" " + key + " ");
     }
     if (keyCode == ENTER){
-      Graph = new GraphRectangular(inputSys, inputSys.getInput(), 0.5);
+      Graph = new GraphRectangular(inputSys, 0.25);
     }
     if (keyCode == BACKSPACE){
       inputSys.remChar();

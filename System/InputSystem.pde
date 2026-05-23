@@ -2,9 +2,11 @@ import java.util.*;
 
 public class InputSystem{
  private String input;
+ private String inputPostfix;
  
  public InputSystem(){
    input = "";
+   inputPostfix = "";
  }
  
  public void addChar(String c){
@@ -24,13 +26,22 @@ public class InputSystem{
   return input;
  }
  
+ public void setInput(String s){
+  input = s;
+ }
+ 
+ public void evaluate(){
+   inputPostfix = infixToPostfix(input);
+   println(inputPostfix);
+ }
+ 
  public void display(){
    text("0 = " + input, 20, 20);
  }
  
- public float function(String s, float x, float y, float z){
+ public float function(float x, float y, float z){
    try{
-     return(eval(infixToPostfix(s), x, y, z));
+     return(eval(inputPostfix, x, y, z));
    }
    catch (Exception e){
     println(e);
