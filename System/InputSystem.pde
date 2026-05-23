@@ -1,61 +1,166 @@
+import java.util.*;
+
 public class InputSystem{
  private String input;
  
  public InputSystem(){
-   resetInput();
+   input = "";
  }
  
- public void resetInput(){
-   this.input = "";
- }
- 
- public void addInput(char c){
+ public void addChar(String c){
   input += c; 
  }
  
- public void display(){
-   text(input, 0, 0);
+ public void remChar(){
+  if (input.length() > 0){
+   if (input.charAt(input.length()-1) == ' '){
+     input = input.substring(0,input.length()-2); 
+   }
+   input = input.substring(0,input.length()-1); 
+  }
  }
  
- public float function(String s){
-   println(s);
-  char c = s.charAt(0);
-  int i = 0;
-  if (c == '('){
-    int endParent = 0;
-    while (s.charAt(endParent) != ')'){
-     endParent++; 
-    }
-    if (s.length() > endParent - 1){
-      return function(function(s.substring(1,endParent))+s.substring(endParent+1));
-    }
-    else{
-     return function(s.substring(0,s.length()-1)); 
-    }
-  }
-  while (((int) c <= (int) ('9') && (int) c >= (int) ('0')) || c == '.' || c == '-'){
-    i++;
-    if (s.length() <= i){
-      return Float.parseFloat(s);
-    }
-    c=s.charAt(i);
-  }
-  if (c=='^'){
-   return (float) Math.pow(Float.parseFloat(s.substring(0,i)), function(s.substring(i+1))); 
-  }
-  if (c=='/'){
-   return Float.parseFloat(s.substring(0,i)) / function(s.substring(i+1)); 
-  }
-  if (c=='*'){
-   return Float.parseFloat(s.substring(0,i)) * function(s.substring(i+1)); 
-  }
-  if (c=='-'){
-   return Float.parseFloat(s.substring(0,i)) - function(s.substring(i+1)); 
-  }
-  if (c=='+'){
-   return Float.parseFloat(s.substring(0,i)) + function(s.substring(i+1)); 
-  }
-  println(c);
-  return Float.parseFloat(s);
+ public String getInput(){
+  return input;
  }
+ 
+ public void display(){
+   text("0 = " + input, 20, 20);
+ }
+ 
+ public float function(String s, float x, float y, float z){
+   try{
+     return(eval(infixToPostfix(s), x, y, z));
+   }
+   catch (Exception e){
+    println(e);
+    return 0;
+   }
+ }
+ 
+ public float eval(String expression, float x, float y, float z){ // From StackCalculator Lab
+    ArrayDeque<Float> stack = new ArrayDeque<>();
+    String[] stringArr = expression.split(" ");
+    for (String s: stringArr){
+      try{
+        if (s.equals("x")){
+         stack.addFirst(x); 
+        }
+        else if (s.equals("y")){
+         stack.addFirst(y); 
+        }
+        else if (s.equals("z")){
+         stack.addFirst(z); 
+        }
+        else {
+          stack.addFirst(Float.parseFloat(s));
+        }
+      }
+      catch (Exception e){
+        if (stack.size() < 2){
+          println(expression);
+          throw new IllegalArgumentException("Too few operands");
+        }
+        float b = stack.removeFirst();
+        float a = stack.removeFirst();
+        if (s.equals("+")){
+          stack.addFirst(a + b);
+        }
+        if (s.equals("-")){
+          stack.addFirst(a - b);
+        }
+        if (s.equals("*")){
+          stack.addFirst(a * b);
+        }
+        if (s.equals("/")){
+          if (b == 0){
+            throw new ArithmeticException("Cannot divide by 0");
+          }
+          stack.addFirst(a / b);
+        }
+        if (s.equals("^")){
+          stack.addFirst((float) Math.pow(a,b));
+        }
+      }
+    }
+    if (stack.size() > 1){
+      throw new IllegalArgumentException("Too many operands");
+    }
+    return Math.abs(stack.removeFirst());
+  }
+
+  public String infixToPostfix(String infix) { // From StackCalculator Lab
+      String answer = "";
+      ArrayDeque<String> stack = new ArrayDeque<>();
+      String[] stringArr = infix.split(" ");
+      for (String s: stringArr){
+        if (s.equals("x") || s.equals("y") || s.equals("z")){
+          if (stack.size() != 0){
+            answer += " ";
+          }
+          answer += s;
+        }
+        else{
+          try{
+            double c = Double.parseDouble(s);
+            if (!answer.equals("")){
+              answer += " ";
+            }
+            answer += c;
+          }
+          catch (Exception e){
+            if (stack.size() == 0){
+              stack.addFirst(s);
+            }
+            else{
+              String o = stack.getFirst();
+              boolean flag = true;
+              if (s.equals("(")){
+                stack.addFirst(s);
+              }
+              else {
+                while (order(o) >= order(s) && stack.size() > 0) {
+                  if (o.equals("(") && s.equals(")")) {
+                    stack.removeFirst();
+                    flag = false;
+                    break;
+                  }
+                  else {
+                    answer += " " + stack.removeFirst();
+                    if (stack.size() > 0) {
+                      o = stack.getFirst();
+                    }
+                  }
+                }
+                if (flag) {
+                  stack.addFirst(s);
+                }
+              }
+            }
+          }
+        }
+      }
+      if (stack.size() > 0){
+        for (String s: stack){
+          answer += " " + s;
+        }
+      }
+      return answer;
+    }
+
+    public int order(String s){ // From StackCalculator Lab
+      if (s.equals("+") || s.equals("-")){
+        return 1;
+      }
+      if (s.equals("*") || s.equals("/") || s.equals("%")){
+        return 2;
+      }
+      if (s.equals("^")){
+        return 3;
+      }
+      if (s.equals(")") || s.equals("(")){
+        return 0;
+      }
+      return -1;
+    }
 }

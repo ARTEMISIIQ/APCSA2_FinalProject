@@ -1,12 +1,11 @@
 import java.util.*;
-
-  private ArrayList<Point> grid = new ArrayList<>();
   
   private float pi = 3.14159263589;
   private float e = 2.718281828;
   
   private Camera camera = new Camera(100,pi/2,pi/2);
   private InputSystem inputSys = new InputSystem();
+  private GraphRectangular Graph;
   
   private PVector cameraCords = camera.getVector();
   
@@ -20,29 +19,17 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
+  private String equation = "x + y + z - 1";
+  
   void setup(){
    size(500,500);
-   background(255);
-   println(inputSys.function("(2^3)+2/4^-1"));
-   float m = 0.25;
-   for (float i = -10; i < 10; i+=m){
-     for (float j = -10; j < 10; j+=m){
-        for (float k = -10; k < 10; k+=m){
-           if (f(i,j,k) < 0.5){
-             grid.add(new Point(i,j,k));
-           }
-         }
-       }
-    }
-  }
-
-  float f(float x, float y, float z){
-    float c = x*y*z-1;
-    return abs(c);
+   Graph = new GraphRectangular(inputSys, equation, 1.0);
   }
   
   void draw(){
     background(255);
+  
+    inputSys.display();
   
     vertLine = camera.getVert();
     horiLine = camera.getHori();
@@ -51,7 +38,7 @@ import java.util.*;
     y1 = cameraCords.y;
     z1 = cameraCords.z;
     
-    for (Point point: grid){
+    for (Point point: Graph.getPts()){
       PVector loc = point.getCoords3D();
       PVector new3dCoords = project3d(loc);
       PVector newCoords = project2d(new3dCoords);
@@ -78,6 +65,18 @@ import java.util.*;
     }
     if (key == 'q'){
       camera.setMag(cameraMagnitude-5);
+    }
+    if (((int) key >= (int) '0' && (int) key <= (int) '9') || key == 'x' || key == 'y' || key == 'z'){
+      inputSys.addChar("" + key);
+    }
+    if (key == '(' || key == '/' || key == '*' || key == '+' || key == '-' || key == ')' || key == '^'){
+      inputSys.addChar(" " + key + " ");
+    }
+    if (keyCode == ENTER){
+      Graph = new GraphRectangular(inputSys, inputSys.getInput(), 0.5);
+    }
+    if (keyCode == BACKSPACE){
+      inputSys.remChar();
     }
     cameraMagnitude = camera.getMag();
     cameraAngle_1 = camera.getAng1();
