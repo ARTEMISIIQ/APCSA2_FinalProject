@@ -1,49 +1,40 @@
 import java.util.*;
 
-  ArrayList<PVector> grid = new ArrayList<>();
+  private ArrayList<Point> grid = new ArrayList<>();
   
-  Camera camera = new Camera(100,0.00001,0.00001);
+  private float pi = 3.14159263589;
+  private float e = 2.718281828;
   
-  PVector cameraCords = camera.getVector();
+  private Camera camera = new Camera(100,pi/2,0);
   
-  float x1 = cameraCords.x;
-  float y1 = cameraCords.y;
-  float z1 = cameraCords.z;
-  float cameraMagnitude = camera.getMag();
-  float cameraAngle_1 = camera.getAng1();
-  float cameraAngle_2 = camera.getAng2();
+  private PVector cameraCords = camera.getVector();
   
-  PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
-  PVector horiLine = new PVector(y1,-x1, 0);
+  private float x1 = cameraCords.x;
+  private float y1 = cameraCords.y;
+  private float z1 = cameraCords.z;
+  private float cameraMagnitude = camera.getMag();
+  private float cameraAngle_1 = camera.getAng1();
+  private float cameraAngle_2 = camera.getAng2();
   
-  float pi = 3.14159263589;
-  float e = 2.718281828;
-  float scale = 50;
+  private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
+  private PVector horiLine = new PVector(y1,-x1, 0);
+  
+  private boolean TwoDimension = false;
   
   void setup(){
-   size(1000,1000);
-   colorMode(HSB, 360, 100, 100);
-   //colorMode(RGB, 255, 255, 255);
+   size(500,500);
    background(255);
-   //for (int i = 0; i < 8; i++){
-   //  String s = Integer.toBinaryString(i);
-   //  while (s.length() < 3){
-   //    s = "0" + s;
-   //  }
-   //  float x = Integer.parseInt(s.substring(0,1));
-   //  float y = Integer.parseInt(s.substring(1,2));
-   //  float z = Integer.parseInt(s.substring(2,3));
-   //  grid.add(new PVector(x,y,z));
-   //}
-   //for (int i = 0; i < 1000; i++){
-   //  grid.add(PVector.random3D().setMag(3));
-   //
-   float m = 0.25;
+   float m = 2;
    for (float i = -10; i < 10; i+=m){
      for (float j = -10; j < 10; j+=m){
-       for (float k = -10; k < 10; k+=m){
-         if (f(i,j,k,1) < 0.5){
-           grid.add(new PVector(i,j,k));
+       if (TwoDimension){
+         grid.add(new Point(i,j,0));
+       }
+       else{
+         for (float k = -10; k < 10; k+=m){
+            if (f(i,j,k,1) < 0.5){
+              grid.add(new Point(i,j,k));
+           }
          }
        }
      }
@@ -51,41 +42,46 @@ import java.util.*;
   }
   
   float f(float x, float y, float z, float k){
-    float c = x*x+y*y-z-sin(z)*x;
+    float c = x*y-1;
     return abs(c);
   }
   
   void draw(){
     background(255);
   
-    vertLine = new PVector(1,y1/x1,-((x1 + y1*y1/x1) / z1));
-    horiLine = new PVector(y1, x1, 0);
+    vertLine = camera.getVert();
+    horiLine = camera.getHori();
     
-    for (PVector point: grid){
-      PVector new3dCoords = project3d(point);
+    x1 = cameraCords.x;
+    y1 = cameraCords.y;
+    z1 = cameraCords.z;
+    
+    for (Point point: grid){
+      PVector loc = point.getCoords3D();
+      PVector new3dCoords = project3d(loc);
       PVector newCoords = project2d(new3dCoords);
-      float d = point.dist(cameraCords);
-      fill(100, 100, 3000/d);
-      float m = d / 10;
-      ellipse(newCoords.x * width / cameraMagnitude + width/2, newCoords.y * height / cameraMagnitude + height/2, 1000 / d / d * m, 1000 / d / d * m);
+      point.setCoords2D(newCoords);
+      point.display(camera);
     }
-    
     //println(vertLine);
     //println(horiLine);
+    
   }
   
   void keyPressed(){
-    if (keyCode == RIGHT){
-      camera.setAng1(cameraAngle_1-pi/100);
-    }
-    if (keyCode == LEFT){
-      camera.setAng1(cameraAngle_1+pi/100);
-    }
-    if (keyCode == UP){
-      camera.setAng2(cameraAngle_2+pi/100);
-    }
-    if (keyCode == DOWN){
-      camera.setAng2(cameraAngle_2-pi/100);
+    if (!TwoDimension){
+      if (keyCode == RIGHT){
+        camera.setAng1(cameraAngle_1-pi/100);
+      }
+      if (keyCode == LEFT){
+        camera.setAng1(cameraAngle_1+pi/100);
+      }
+      if (keyCode == UP){
+        camera.setAng2(cameraAngle_2+pi/100);
+      }
+      if (keyCode == DOWN){
+        camera.setAng2(cameraAngle_2-pi/100);
+      }
     }
     if (key == 'e'){
       camera.setMag(cameraMagnitude+5);
@@ -93,6 +89,9 @@ import java.util.*;
     if (key == 'q'){
       camera.setMag(cameraMagnitude-5);
     }
+    cameraMagnitude = camera.getMag();
+    cameraAngle_1 = camera.getAng1();
+    cameraAngle_2 = camera.getAng2();
     cameraCords = camera.getVector();
   }
   
@@ -110,14 +109,32 @@ import java.util.*;
   }
   
   PVector project2d(PVector transformedPoint){
-    if (transformedPoint.mag() != 0){
-      double theta = acos(max(-1,min((transformedPoint.dot(vertLine) / transformedPoint.mag() / vertLine.mag()),1)));
-      if (cameraCords.dot(transformedPoint.cross(vertLine)) < 0){
-        theta *= -1;
-      }
-      theta += pi/2;
-      float r = transformedPoint.mag();
-      return new PVector(r * cos((float) theta), r * sin((float) theta));
+    //if (transformedPoint.mag() != 0){
+    //  double theta = acos(max(-1,min((transformedPoint.dot(vertLine) / transformedPoint.mag() / vertLine.mag()),1)));
+    //  if (cameraCords.dot(transformedPoint.cross(vertLine)) < 0){
+    //    theta *= -1;
+    //  }
+    //  theta += pi/2;
+    //  float r = transformedPoint.mag();
+    //  return new PVector(r * cos((float) theta), r * sin((float) theta));
+    //}
+    //return new PVector(0,0);
+    PVector jVector = vertLine.copy().setMag(1);
+    PVector iVector = horiLine.copy().setMag(1);
+    
+    float y = 0;
+    
+    if (abs(jVector.z) < 0.01){
+      y = transformedPoint.z / jVector.z;
     }
-    return new PVector(0,0);
+    else{
+      if (jVector.x != 0){
+        y = (transformedPoint.y - transformedPoint.x * jVector.y / jVector.x) / (iVector.y - iVector.x * jVector.y / jVector.x);
+      }
+    }
+    float x = 0;
+    if (abs(iVector.x) < 0.01){
+      x = (transformedPoint.x - y * jVector.x) / iVector.x;
+    }
+    return new PVector(x,y);
   }
