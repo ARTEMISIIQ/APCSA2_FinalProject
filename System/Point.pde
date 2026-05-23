@@ -19,6 +19,7 @@ public class Point{
  public void display(Camera c){
    float cameraMagnitude = c.getMag();
    float d = c.getVector().dist(coordinates3D);
+   fill(100, 100, 3000/d);
    ellipse(coordinates2D.x * width / cameraMagnitude + width/2, coordinates2D.y * height / cameraMagnitude + height/2, 100 / d / d, 100 / d / d);
  }
  
