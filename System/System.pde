@@ -27,6 +27,7 @@ import java.util.*;
    float m = 2;
    for (float i = -10; i < 10; i+=m){
      for (float j = -10; j < 10; j+=m){
+<<<<<<< HEAD
        if (TwoDimension){
          grid.add(new Point(i,j,0));
        }
@@ -35,14 +36,24 @@ import java.util.*;
             if (f(i,j,k,1) < 0.5){
               grid.add(new Point(i,j,k));
            }
+=======
+       for (float k = -10; k < 10; k+=m){
+         if (f(i,j,k) < 0.5){
+           grid.add(new PVector(i,j,k));
+>>>>>>> 28c074bf01d76cddc173e2e4148ac4a6eb7396fe
          }
        }
      }
    }
   }
   
+<<<<<<< HEAD
   float f(float x, float y, float z, float k){
     float c = x*y-1;
+=======
+  float f(float x, float y, float z){
+    float c = x*x+y*y-z-sin(z)*x;
+>>>>>>> 28c074bf01d76cddc173e2e4148ac4a6eb7396fe
     return abs(c);
   }
   
