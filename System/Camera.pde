@@ -67,7 +67,13 @@ public class Camera{
    z = cameraMagnitude * cos(cameraAngle_2);
    y = cameraMagnitude * sin(cameraAngle_1) * sin(cameraAngle_2);
    cameraCords = new PVector(x,y,z);
-   vertLine = new PVector(-x*z,-y*z,x*x + y*y);
-   horiLine = new PVector(y, -x, 0);
+   if (cameraAngle_1 == 0 && cameraAngle_2 == 0){
+     vertLine = new PVector(0,1,0);
+     horiLine = new PVector(1,0,0);
+   }
+   else{
+     vertLine = new PVector(-x*z,-y*z,x*x + y*y);
+     horiLine = new PVector(y, -x, 0);
+   }
   }
 }

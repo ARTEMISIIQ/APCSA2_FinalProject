@@ -45,7 +45,7 @@ public class InputSystem{
    }
    catch (Exception e){
     println(e);
-    return 0;
+    return 100;
    }
  }
  
@@ -68,29 +68,31 @@ public class InputSystem{
         }
       }
       catch (Exception e){
-        if (stack.size() < 2){
-          println(expression);
-          throw new IllegalArgumentException("Too few operands");
-        }
-        float b = stack.removeFirst();
-        float a = stack.removeFirst();
-        if (s.equals("+")){
-          stack.addFirst(a + b);
-        }
-        if (s.equals("-")){
-          stack.addFirst(a - b);
-        }
-        if (s.equals("*")){
-          stack.addFirst(a * b);
-        }
-        if (s.equals("/")){
-          if (b == 0){
-            throw new ArithmeticException("Cannot divide by 0");
+        if (s != ""){
+          if (stack.size() < 2){
+            println(expression);
+            throw new IllegalArgumentException("Too few operands");
           }
-          stack.addFirst(a / b);
-        }
-        if (s.equals("^")){
-          stack.addFirst((float) Math.pow(a,b));
+          float b = stack.removeFirst();
+          float a = stack.removeFirst();
+          if (s.equals("+")){
+            stack.addFirst(a + b);
+          }
+          if (s.equals("-")){
+            stack.addFirst(a - b);
+          }
+          if (s.equals("*")){
+            stack.addFirst(a * b);
+          }
+          if (s.equals("/")){
+            if (b == 0){
+              throw new ArithmeticException("Cannot divide by 0");
+            }
+            stack.addFirst(a / b);
+          }
+          if (s.equals("^")){
+            stack.addFirst((float) Math.pow(a,b));
+          }
         }
       }
     }

@@ -21,10 +21,12 @@ import java.util.*;
   
   private String equation = "x + y + z - 1";
   
+  private int Dimension = 3;
+  
   void setup(){
    size(500,500);
    inputSys.setInput(equation);
-   Graph = new GraphRectangular(inputSys, 0.25);
+   Graph = new GraphRectangular(inputSys, 0.25, Dimension);
   }
   
   void draw(){
@@ -49,17 +51,19 @@ import java.util.*;
   }
   
   void keyPressed(){
-    if (keyCode == RIGHT){
-      camera.setAng1(cameraAngle_1-pi/100);
-    }
-    if (keyCode == LEFT){
-      camera.setAng1(cameraAngle_1+pi/100);
-    }
-    if (keyCode == UP){
-      camera.setAng2(cameraAngle_2+pi/100);
-    }
-    if (keyCode == DOWN){
-      camera.setAng2(cameraAngle_2-pi/100);
+    if (Dimension == 3){
+      if (keyCode == RIGHT){
+        camera.setAng1(cameraAngle_1-pi/100);
+      }
+      if (keyCode == LEFT){
+        camera.setAng1(cameraAngle_1+pi/100);
+      }
+      if (keyCode == UP){
+        camera.setAng2(cameraAngle_2+pi/100);
+      }
+      if (keyCode == DOWN){
+        camera.setAng2(cameraAngle_2-pi/100);
+      }
     }
     if (key == 'e'){
       camera.setMag(cameraMagnitude+5);
@@ -74,10 +78,21 @@ import java.util.*;
       inputSys.addChar(" " + key + " ");
     }
     if (keyCode == ENTER){
-      Graph = new GraphRectangular(inputSys, 0.25);
+      Graph = new GraphRectangular(inputSys, 0.25, Dimension);
     }
     if (keyCode == BACKSPACE){
       inputSys.remChar();
+    }
+    if (key == 'd'){
+      Dimension = 5 - Dimension;
+      if (Dimension == 2){
+        camera.setAng1(0);
+        camera.setAng2(0);
+      }
+      else{
+        camera.setAng1(0.001);
+        camera.setAng2(0.001);
+      }
     }
     cameraMagnitude = camera.getMag();
     cameraAngle_1 = camera.getAng1();
@@ -99,26 +114,29 @@ import java.util.*;
   }
   
   PVector project2d(PVector transformedPoint){
-    if (transformedPoint.mag() != 0){
-      double theta = acos(max(-1,min((transformedPoint.dot(vertLine) / transformedPoint.mag() / vertLine.mag()),1)));
-      if (cameraCords.dot(transformedPoint.cross(vertLine)) < 0){
-        theta *= -1;
-      }
-      theta += pi/2;
-      float r = transformedPoint.mag();
-      return new PVector(r * cos((float) theta), r * sin((float) theta));
-    }
-    return new PVector(0,0);
-    //PVector jVector = vertLine.copy().setMag(1);
-    //PVector iVector = horiLine.copy().setMag(1);
+    //if (transformedPoint.mag() != 0){
+    //  double theta = acos(max(-1,min((transformedPoint.dot(vertLine) / transformedPoint.mag() / vertLine.mag()),1)));
+    //  if (cameraCords.dot(transformedPoint.cross(vertLine)) < 0){
+    //    theta *= -1;
+    //  }
+    //  theta += pi/2;
+    //  float r = transformedPoint.mag();
+    //  return new PVector(r * cos((float) theta), r * sin((float) theta));
+    //}
+    //return new PVector(0,0);
+    PVector jVector = vertLine.copy().setMag(1);
+    PVector iVector = horiLine.copy().setMag(1);
     
-    //float y = 0;
-    //if (jVector.z == 0){
-    //  y = transformedPoint.z / jVector.z;
-    //}
-    //float x = 0;
-    //if (iVector.x == 0){
-    //  x = (transformedPoint.x - y * jVector.x) / iVector.x;
-    //}
-    //return new PVector(x,y);
+    float y = 0;
+    if (jVector.z != 0){
+      y = transformedPoint.z / jVector.z;
+    }
+    else{
+      y = -transformedPoint.y;
+    }
+    float x = 0;
+    if (iVector.x != 0){
+      x = (transformedPoint.x - y * jVector.x) / iVector.x;
+    }
+    return new PVector(x,y);
   }
