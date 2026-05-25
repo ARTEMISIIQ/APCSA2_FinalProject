@@ -22,54 +22,45 @@ import java.util.*;
   private String equation = "x + y + z - 1";
   
   private int Dimension = 3;
+  private boolean Vector = false;
   
   void setup(){
    size(500,500);
    inputSys.setInput(equation);
-   Graph = new GraphRectangular(inputSys, 0.25, Dimension);
+   Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+   display();
   }
   
   void draw(){
-    background(255);
-  
     inputSys.display();
-  
-    vertLine = camera.getVert();
-    horiLine = camera.getHori();
-    
-    x1 = cameraCords.x;
-    y1 = cameraCords.y;
-    z1 = cameraCords.z;
-    
-    for (Point point: Graph.getPts()){
-      PVector loc = point.getCoords3D();
-      PVector new3dCoords = project3d(loc);
-      PVector newCoords = project2d(new3dCoords);
-      point.setCoords2D(newCoords);
-      point.display(camera);
-    }
   }
   
   void keyPressed(){
     if (Dimension == 3){
       if (keyCode == RIGHT){
         camera.setAng1(cameraAngle_1-pi/100);
+        display();
       }
       if (keyCode == LEFT){
         camera.setAng1(cameraAngle_1+pi/100);
+        display();
       }
       if (keyCode == UP){
         camera.setAng2(cameraAngle_2+pi/100);
+        display();
       }
       if (keyCode == DOWN){
         camera.setAng2(cameraAngle_2-pi/100);
+        display();
       }
     }
     if (key == 'e'){
       camera.setMag(cameraMagnitude+5);
+      display();
     }
     if (key == 'q'){
       camera.setMag(cameraMagnitude-5);
+      display();
     }
     if (((int) key >= (int) '0' && (int) key <= (int) '9') || key == 'x' || key == 'y' || key == 'z'){
       inputSys.addChar("" + key);
@@ -77,14 +68,16 @@ import java.util.*;
     if (key == '(' || key == '/' || key == '*' || key == '+' || key == '-' || key == ')' || key == '^'){
       inputSys.addChar(" " + key + " ");
     }
-    if (keyCode == ENTER){
-      Graph = new GraphRectangular(inputSys, 0.25, Dimension);
-    }
     if (keyCode == BACKSPACE){
       inputSys.remChar();
     }
+    if (keyCode == ENTER){
+      Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+      display();
+    }
     if (key == 'd'){
       Dimension = 5 - Dimension;
+      Vector = false;
       if (Dimension == 2){
         camera.setAng1(0);
         camera.setAng2(0);
@@ -93,11 +86,42 @@ import java.util.*;
         camera.setAng1(0.001);
         camera.setAng2(0.001);
       }
+      Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+      display();
+    }
+    if (key == 'v' && Dimension == 2){
+      Vector = !Vector;
+      Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+      display();
     }
     cameraMagnitude = camera.getMag();
     cameraAngle_1 = camera.getAng1();
     cameraAngle_2 = camera.getAng2();
     cameraCords = camera.getVector();
+      
+    vertLine = camera.getVert();
+    horiLine = camera.getHori();
+    
+    x1 = cameraCords.x;
+    y1 = cameraCords.y;
+    z1 = cameraCords.z;
+  }
+  
+  void display(){
+    background(255);
+    inputSys.display();
+    for (Point point: Graph.getPts()){
+      PVector loc = point.getCoords3D();
+      PVector new3dCoords = project3d(loc);
+      PVector newCoords = project2d(new3dCoords);
+      point.setCoords2D(newCoords);
+      if (!Vector){
+        point.display(camera);
+      }
+      else{
+        point.displayVector(camera);
+      }
+    }
   }
   
   PVector project3d(PVector point){
@@ -137,6 +161,9 @@ import java.util.*;
     float x = 0;
     if (iVector.x != 0){
       x = (transformedPoint.x - y * jVector.x) / iVector.x;
+    }
+    else{
+      x = (transformedPoint.y - y * jVector.y) / iVector.y;
     }
     return new PVector(x,y);
   }

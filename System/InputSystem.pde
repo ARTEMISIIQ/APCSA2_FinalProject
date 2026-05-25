@@ -32,10 +32,12 @@ public class InputSystem{
  
  public void evaluate(){
    inputPostfix = infixToPostfix(input);
-   println(inputPostfix);
  }
  
  public void display(){
+   fill(255);
+   rect(15,10,470,15);
+   fill(0);
    text("0 = " + input, 20, 20);
  }
  
@@ -44,8 +46,7 @@ public class InputSystem{
      return(eval(inputPostfix, x, y, z));
    }
    catch (Exception e){
-    println(e);
-    return 100;
+    return Integer.MAX_VALUE;
    }
  }
  
@@ -99,7 +100,7 @@ public class InputSystem{
     if (stack.size() > 1){
       throw new IllegalArgumentException("Too many operands");
     }
-    return Math.abs(stack.removeFirst());
+    return stack.removeFirst();
   }
 
   public String infixToPostfix(String infix) { // From StackCalculator Lab
