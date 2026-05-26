@@ -4,13 +4,15 @@ public class InputSystem{
  private String input;
  private String inputPostfix;
  
+ private boolean blink = false;
+ 
  public InputSystem(){
    input = "";
    inputPostfix = "";
  }
  
  public void addChar(String c){
-  input += c; 
+  input += c;
  }
  
  public void remChar(){
@@ -38,7 +40,7 @@ public class InputSystem{
    fill(255);
    rect(15,10,470,15);
    fill(0);
-   text("0 = " + input, 20, 20);
+   text("0 = " + input + "|", 20, 20);
  }
  
  public float function(float x, float y, float z){
@@ -70,29 +72,40 @@ public class InputSystem{
       }
       catch (Exception e){
         if (s != ""){
-          if (stack.size() < 2){
-            println(expression);
+          if (stack.size() < 2 && !s.equals("sin") && !s.equals("cos") && !s.equals("tan")){
+            println(expression + ":" + s);
             throw new IllegalArgumentException("Too few operands");
           }
           float b = stack.removeFirst();
-          float a = stack.removeFirst();
-          if (s.equals("+")){
-            stack.addFirst(a + b);
+          if (s.equals("sin")){
+            stack.addFirst(sin(b));
           }
-          if (s.equals("-")){
-            stack.addFirst(a - b);
+          else if (s.equals("cos")){
+            stack.addFirst(cos(b));
           }
-          if (s.equals("*")){
-            stack.addFirst(a * b);
+          else if (s.equals("tan")){
+            stack.addFirst(tan(b));
           }
-          if (s.equals("/")){
-            if (b == 0){
-              throw new ArithmeticException("Cannot divide by 0");
+          else{
+            float a = stack.removeFirst();
+            if (s.equals("+")){
+              stack.addFirst(a + b);
             }
-            stack.addFirst(a / b);
-          }
-          if (s.equals("^")){
-            stack.addFirst((float) Math.pow(a,b));
+            if (s.equals("-")){
+              stack.addFirst(a - b);
+            }
+            if (s.equals("*")){
+              stack.addFirst(a * b);
+            }
+            if (s.equals("/")){
+              if (b == 0){
+                throw new ArithmeticException("Cannot divide by 0");
+              }
+              stack.addFirst(a / b);
+            }
+            if (s.equals("^")){
+              stack.addFirst((float) Math.pow(a,b));
+            }
           }
         }
       }
@@ -108,7 +121,7 @@ public class InputSystem{
       ArrayDeque<String> stack = new ArrayDeque<>();
       String[] stringArr = infix.split(" ");
       for (String s: stringArr){
-        if (s.equals("x") || s.equals("y") || s.equals("z")){
+        if (s.equals("x") || s.equals("y") || s.equals("z") || s.equals("sin") || s.equals("tan") || s.equals("cos")){
           if (stack.size() != 0){
             answer += " ";
           }
@@ -123,31 +136,33 @@ public class InputSystem{
             answer += c;
           }
           catch (Exception e){
-            if (stack.size() == 0){
-              stack.addFirst(s);
-            }
-            else{
-              String o = stack.getFirst();
-              boolean flag = true;
-              if (s.equals("(")){
+            if (s != ""){
+              if (stack.size() == 0){
                 stack.addFirst(s);
               }
-              else {
-                while (order(o) >= order(s) && stack.size() > 0) {
-                  if (o.equals("(") && s.equals(")")) {
-                    stack.removeFirst();
-                    flag = false;
-                    break;
-                  }
-                  else {
-                    answer += " " + stack.removeFirst();
-                    if (stack.size() > 0) {
-                      o = stack.getFirst();
+              else{
+                String o = stack.getFirst();
+                boolean flag = true;
+                if (s.equals("(")){
+                  stack.addFirst(s);
+                }
+                else {
+                  while (order(o) >= order(s) && stack.size() > 0) {
+                    if (o.equals("(") && s.equals(")")) {
+                      stack.removeFirst();
+                      flag = false;
+                      break;
+                    }
+                    else {
+                      answer += " " + stack.removeFirst();
+                      if (stack.size() > 0) {
+                        o = stack.getFirst();
+                      }
                     }
                   }
-                }
-                if (flag) {
-                  stack.addFirst(s);
+                  if (flag) {
+                    stack.addFirst(s);
+                  }
                 }
               }
             }
@@ -162,12 +177,15 @@ public class InputSystem{
       return answer;
     }
 
-    public int order(String s){ // From StackCalculator Lab
+    public float order(String s){ // From StackCalculator Lab
       if (s.equals("+") || s.equals("-")){
         return 1;
       }
       if (s.equals("*") || s.equals("/") || s.equals("%")){
         return 2;
+      }
+      if (s.equals("sin") || s.equals("cos") || s.equals("tan")){
+        return 2.5;
       }
       if (s.equals("^")){
         return 3;

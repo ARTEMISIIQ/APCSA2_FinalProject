@@ -19,7 +19,7 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
-  private String equation = "x + y - z ^ 2 - 10";
+  private String equation = "x * sin x + y * sin y + z * sin z";
   
   private int Dimension = 3;
   private boolean Vector = false;
@@ -63,6 +63,9 @@ import java.util.*;
       display();
     }
     if (((int) key >= (int) '0' && (int) key <= (int) '9') || key == 'x' || key == 'y' || key == 'z'){
+      inputSys.addChar("" + key);
+    }
+    if (key == 's' || key == 'i' || key == 'n' || key == 'c' || key == 'o' || key == 't' || key == 'a' || key == ' '){
       inputSys.addChar("" + key);
     }
     if (key == '(' || key == '/' || key == '*' || key == '+' || key == '-' || key == ')' || key == '^'){
@@ -122,7 +125,6 @@ import java.util.*;
         point.displayVector(camera);
       }
     }
-    println("v: " + camera.getVector());
   }
   
   PVector project3d(PVector point){

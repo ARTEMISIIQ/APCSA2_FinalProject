@@ -31,6 +31,7 @@ public class GraphRectangular{
           }
         }
        }
+       println(i);
     }
   }
   
