@@ -19,7 +19,7 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
-  private String equation = "x + y + z - 1";
+  private String equation = "x + y - z ^ 2 - 10";
   
   private int Dimension = 3;
   private boolean Vector = false;
@@ -122,6 +122,7 @@ import java.util.*;
         point.displayVector(camera);
       }
     }
+    println("v: " + camera.getVector());
   }
   
   PVector project3d(PVector point){
