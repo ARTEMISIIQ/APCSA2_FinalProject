@@ -72,7 +72,7 @@ public class Camera{
      horiLine = new PVector(1,0,0);
    }
    else{
-     vertLine = new PVector(-x*z,-y*z,x*x + y*y);
+     vertLine = new PVector(-1,-y/x,x*x/z/x + y*y/z/x);
      horiLine = new PVector(-y, x, 0);
    }
   }

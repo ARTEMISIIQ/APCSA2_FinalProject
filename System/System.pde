@@ -5,7 +5,7 @@ import java.util.*;
   
   private Camera camera = new Camera(100,pi/2,pi/2);
   private InputSystem inputSys = new InputSystem();
-  private GraphRectangular Graph;
+  private Graph Graph;
   
   private PVector cameraCords = camera.getVector();
   
@@ -19,15 +19,16 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
-  private String equation = "x * sin x + y * sin y + z * sin z";
+  private String equation = "x + sin x + y + sin y - z + sin ( z )";
   
   private int Dimension = 3;
   private boolean Vector = false;
+  private boolean Derivative = false;
   
   void setup(){
    size(500,500);
    inputSys.setInput(equation);
-   Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+   Graph = new Graph(inputSys, 0.1, Dimension, Vector);
    display();
   }
   
@@ -75,7 +76,7 @@ import java.util.*;
       inputSys.remChar();
     }
     if (keyCode == ENTER){
-      Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+      Graph = new Graph(inputSys, 0.25, Dimension, Vector);
       display();
     }
     if (key == 'd'){
@@ -89,12 +90,12 @@ import java.util.*;
         camera.setAng1(0.001);
         camera.setAng2(0.001);
       }
-      Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+      Graph = new Graph(inputSys, 0.1, Dimension, Vector);
       display();
     }
     if (key == 'v' && Dimension == 2){
       Vector = !Vector;
-      Graph = new GraphRectangular(inputSys, 0.25, Dimension, Vector);
+      Graph = new Graph(inputSys, 0.1, Dimension, Vector);
       display();
     }
     cameraMagnitude = camera.getMag();
@@ -108,6 +109,20 @@ import java.util.*;
     x1 = cameraCords.x;
     y1 = cameraCords.y;
     z1 = cameraCords.z;
+  }
+  
+  void keyReleased(){
+    if (key == ',' && Dimension == 2){
+      Derivative = !Derivative;
+    }
+  }
+  
+  void mouseDragged(){
+    if (Dimension == 2 && Derivative){
+      Derivative d = new Derivative((mouseX-width/2) * cameraMagnitude / width, inputSys, Graph);
+      display();
+      d.display();
+    }
   }
   
   void display(){

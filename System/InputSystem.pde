@@ -34,6 +34,7 @@ public class InputSystem{
  
  public void evaluate(){
    inputPostfix = infixToPostfix(input);
+   println(inputPostfix);
  }
  
  public void display(){
@@ -121,7 +122,7 @@ public class InputSystem{
       ArrayDeque<String> stack = new ArrayDeque<>();
       String[] stringArr = infix.split(" ");
       for (String s: stringArr){
-        if (s.equals("x") || s.equals("y") || s.equals("z") || s.equals("sin") || s.equals("tan") || s.equals("cos")){
+        if (s.equals("x") || s.equals("y") || s.equals("z")){
           if (stack.size() != 0){
             answer += " ";
           }
@@ -184,11 +185,11 @@ public class InputSystem{
       if (s.equals("*") || s.equals("/") || s.equals("%")){
         return 2;
       }
-      if (s.equals("sin") || s.equals("cos") || s.equals("tan")){
-        return 2.5;
-      }
       if (s.equals("^")){
         return 3;
+      }
+      if (s.equals("sin") || s.equals("cos") || s.equals("tan")){
+        return 3.5;
       }
       if (s.equals(")") || s.equals("(")){
         return 0;
