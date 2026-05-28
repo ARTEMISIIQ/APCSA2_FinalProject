@@ -19,6 +19,7 @@ public class Graph{
     }
     inputSys.evaluate();
     for (float i = -10; i < 10; i+=m){
+      println(i);
       for (float j = -10; j < 10; j+=m){
         if (Dimension == 3){
           for (float k = -10; k < 10; k+=m){
@@ -43,5 +44,13 @@ public class Graph{
   
   public ArrayList<Point> getPts(){
     return Points;
+  }
+  
+  public void display(){
+    background(255);
+    inputSys.display();
+    for (Point p: Points){
+     p.display(camera);
+   }
   }
 }

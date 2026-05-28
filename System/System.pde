@@ -76,21 +76,28 @@ import java.util.*;
       inputSys.remChar();
     }
     if (keyCode == ENTER){
-      Graph = new Graph(inputSys, 0.25, Dimension, Vector);
+      if (Dimension == 2){
+        Graph = new Graph(inputSys, 0.25, Dimension, Vector);
+      }
+      else{
+       Graph = new Graph(inputSys, 0.25, Dimension, Vector); 
+      }
       display();
     }
-    if (key == 'd'){
+    if (key == 'd' && !Vector){
       Dimension = 5 - Dimension;
       Vector = false;
+      Derivative = false;
       if (Dimension == 2){
         camera.setAng1(0);
         camera.setAng2(0);
+        Graph = new Graph(inputSys, 0.25, Dimension, Vector);
       }
       else{
         camera.setAng1(0.001);
         camera.setAng2(0.001);
+        Graph = new Graph(inputSys, 0.25, Dimension, Vector);
       }
-      Graph = new Graph(inputSys, 0.1, Dimension, Vector);
       display();
     }
     if (key == 'v' && Dimension == 2){
@@ -120,7 +127,7 @@ import java.util.*;
   void mouseDragged(){
     if (Dimension == 2 && Derivative){
       Derivative d = new Derivative((mouseX-width/2) * cameraMagnitude / width, inputSys, Graph);
-      display();
+      Graph.display();
       d.display();
     }
   }
