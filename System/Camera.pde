@@ -72,8 +72,8 @@ public class Camera{
      horiLine = new PVector(1,0,0);
    }
    else{
-     vertLine = new PVector(-1,-y/x,x*x/z/x + y*y/z/x);
-     horiLine = new PVector(-y, x, 0);
+     vertLine = new PVector(-1,-y/x,x*x/z/x + y*y/z/x).mult(Math.signum(cos(cameraAngle_2))).mult(Math.signum(cos(cameraAngle_1)));
+     horiLine = new PVector(y, -x, 0).mult(Math.signum(sin(cameraAngle_2)));
    }
   }
 }

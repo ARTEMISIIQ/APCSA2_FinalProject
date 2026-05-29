@@ -1,7 +1,6 @@
 import java.util.*;
   
   private float pi = 3.14159263589;
-  private float e = 2.718281828;
   
   private Camera camera = new Camera(100,pi/2,pi/2);
   private InputSystem inputSys = new InputSystem();
@@ -19,14 +18,15 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
-  private String equation = "x + sin x + y + sin y - z + sin ( z )";
+  private String equation = "x + sin x + y + sin y - z ^ 2";
   
   private int Dimension = 3;
   private boolean Vector = false;
   private boolean Derivative = false;
   
   void setup(){
-   size(500,500);
+    fullScreen();
+   //size(500,500);
    inputSys.setInput(equation);
    Graph = new Graph(inputSys, 0.1, Dimension, Vector);
    display();
