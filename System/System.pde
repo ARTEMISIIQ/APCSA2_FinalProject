@@ -2,7 +2,7 @@ import java.util.*;
   
   private float pi = 3.14159263589;
   
-  private Camera camera = new Camera(100,pi/2,pi/2);
+  private Camera camera = new Camera(100,pi/4+0.01,0.01+5*pi/4);
   private InputSystem inputSys = new InputSystem();
   private Graph Graph;
   
@@ -18,21 +18,23 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
-  private String equation = "x + sin x + y + sin y - z ^ 2";
+  private String equation = "x * sin x + ( y - 5 ) ^ 2";
   
   private int Dimension = 3;
   private boolean Vector = false;
   private boolean Derivative = false;
+  private boolean Integral = false;
+  private boolean Polar = false;
   
   void setup(){
-    fullScreen();
-   //size(500,500);
+   size(500,500);
    inputSys.setInput(equation);
-   Graph = new Graph(inputSys, 0.1, Dimension, Vector);
+   Graph = new Graph(inputSys, 0.25, Dimension, Vector);
    display();
   }
   
   void draw(){
+    changeVariables();
     inputSys.display();
   }
   
@@ -63,11 +65,17 @@ import java.util.*;
       camera.setMag(cameraMagnitude-5);
       display();
     }
-    if (((int) key >= (int) '0' && (int) key <= (int) '9') || key == 'x' || key == 'y' || key == 'z'){
+    if (((int) key >= (int) '0' && (int) key <= (int) '9') || key == 'x' || key == 'y' || key == 'z' || key == '.'){
       inputSys.addChar("" + key);
     }
-    if (key == 's' || key == 'i' || key == 'n' || key == 'c' || key == 'o' || key == 't' || key == 'a' || key == ' '){
-      inputSys.addChar("" + key);
+    if (key == 's'){
+      inputSys.addChar("sin ");
+    }
+    if (key == 'c'){
+      inputSys.addChar("cos ");
+    }
+    if (key == 't'){
+      inputSys.addChar("tan ");
     }
     if (key == '(' || key == '/' || key == '*' || key == '+' || key == '-' || key == ')' || key == '^'){
       inputSys.addChar(" " + key + " ");
@@ -77,7 +85,7 @@ import java.util.*;
     }
     if (keyCode == ENTER){
       if (Dimension == 2){
-        Graph = new Graph(inputSys, 0.25, Dimension, Vector);
+        Graph = new Graph(inputSys, 0.15, Dimension, Vector);
       }
       else{
        Graph = new Graph(inputSys, 0.25, Dimension, Vector); 
@@ -88,23 +96,38 @@ import java.util.*;
       Dimension = 5 - Dimension;
       Vector = false;
       Derivative = false;
+      Integral = false;
+      Polar = false;
       if (Dimension == 2){
         camera.setAng1(0);
         camera.setAng2(0);
-        Graph = new Graph(inputSys, 0.25, Dimension, Vector);
+        Graph = new Graph(inputSys, 0.1, Dimension, Vector);
       }
       else{
-        camera.setAng1(0.001);
-        camera.setAng2(0.001);
+        camera.setAng1(pi/4+0.01);
+        camera.setAng2(5*pi/4+0.01);
         Graph = new Graph(inputSys, 0.25, Dimension, Vector);
       }
+      Graph.displayAxis();
       display();
     }
-    if (key == 'v' && Dimension == 2){
+    if (key == 'v' && Dimension == 2 && !Derivative && !Integral){
       Vector = !Vector;
-      Graph = new Graph(inputSys, 0.1, Dimension, Vector);
       display();
     }
+    if (key == 'i' && Dimension == 2 && !Derivative && !Vector){
+      Integral = !Integral;
+      display();
+    }
+    if (key == 'p' && Dimension == 3){
+      Polar = !Polar;
+      inputSys.flipPolar();
+      changeVariables();
+      inputSys.display();
+      Graph = new Graph(inputSys, 0.25, Dimension, Vector);
+      display();
+    }
+    
     cameraMagnitude = camera.getMag();
     cameraAngle_1 = camera.getAng1();
     cameraAngle_2 = camera.getAng2();
@@ -119,7 +142,8 @@ import java.util.*;
   }
   
   void keyReleased(){
-    if (key == ',' && Dimension == 2){
+    if (key == ',' && Dimension == 2 && !Vector && !Integral){
+      display();
       Derivative = !Derivative;
     }
   }
@@ -135,60 +159,62 @@ import java.util.*;
   void display(){
     background(255);
     inputSys.display();
-    for (Point point: Graph.getPts()){
-      PVector loc = point.getCoords3D();
-      PVector new3dCoords = project3d(loc);
-      PVector newCoords = project2d(new3dCoords);
-      point.setCoords2D(newCoords);
-      if (!Vector){
-        point.display(camera);
+    if (Dimension == 2){
+      if (Vector){
+        Graph.displayVector();
+      }
+      else if (Integral){
+        Graph.displayIntegral();
       }
       else{
-        point.displayVector(camera);
+        Graph.display();
       }
     }
+    else{
+      for (Point point: Graph.getPts()){
+         PVector loc = point.getCoords3D();
+         PVector new3dCoords = Graph.project3d(loc);
+         PVector newCoords = Graph.project2d(new3dCoords);
+         point.setCoords2D(newCoords);
+         point.display(camera);
+      }
+    }
+    Graph.displayAxis();
   }
   
-  PVector project3d(PVector point){
-    PVector lineVector = point.copy().sub(cameraCords);
-    float xP = lineVector.x;
-    float yP = lineVector.y;
-    float zP = lineVector.z;
-    
-    float x2 = (y1*yP*x1 - y1*xP*y1 + z1*zP*x1 - z1*xP*z1) / (x1*xP + y1*yP + z1*zP);
-    float y2 = (x1*xP*y1 - x1*yP*x1 + z1*zP*y1 - z1*yP*z1) / (x1*xP + y1*yP + z1*zP);
-    float z2 = (y1*yP*z1 - y1*zP*y1 + x1*xP*z1 - x1*zP*x1) / (x1*xP + y1*yP + z1*zP);
-    
-    return new PVector(x2,y2,z2);
-  }
-  
-  PVector project2d(PVector transformedPoint){
-    //if (transformedPoint.mag() != 0){
-    //  double theta = acos(max(-1,min((transformedPoint.dot(vertLine) / transformedPoint.mag() / vertLine.mag()),1)));
-    //  if (cameraCords.dot(transformedPoint.cross(vertLine)) < 0){
-    //    theta *= -1;
-    //  }
-    //  theta += pi/2;
-    //  float r = transformedPoint.mag();
-    //  return new PVector(r * cos((float) theta), r * sin((float) theta));
-    //}
-    //return new PVector(0,0);
-    PVector jVector = vertLine.copy().setMag(1);
-    PVector iVector = horiLine.copy().setMag(1);
-    
-    float y = 0;
-    if (jVector.z != 0){
-      y = transformedPoint.z / jVector.z;
+  void changeVariables(){
+    String s = inputSys.getInput();
+    String newS = "";
+    for (int i = 0; i < s.length(); i++){
+      char c = s.charAt(i);
+      if (Polar){
+        if (c == 'x'){
+          newS += "r";
+        }
+        else if (c == 'y'){
+          newS += "\u03B8";
+        }
+        else if (c == 'z'){
+          newS += "\u03C6";
+        }
+        else{
+          newS += c;
+        }
+      }
+      else{
+        if (c == 'r'){
+          newS += "x";
+        }
+        else if (c == '\u03B8'){
+          newS += "y";
+        }
+        else if (c == '\u03C6'){
+          newS += "z";
+        }
+        else{
+          newS += c;
+        }
+      }
     }
-    else{
-      y = -transformedPoint.y;
-    }
-    float x = 0;
-    if (iVector.x != 0){
-      x = (transformedPoint.x - y * jVector.x) / iVector.x;
-    }
-    else{
-      x = (transformedPoint.y - y * jVector.y) / iVector.y;
-    }
-    return new PVector(x,y);
+    inputSys.setInput(newS);
   }

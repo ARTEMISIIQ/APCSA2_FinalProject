@@ -12,6 +12,10 @@ public class Point{
   return this.coordinates3D; 
  }
  
+ public PVector getCoords2D(){
+  return this.coordinates2D; 
+ }
+ 
  public void setCoords2D(PVector v){
   this.coordinates2D = v; 
  }
@@ -20,7 +24,7 @@ public class Point{
    float cameraMagnitude = c.getMag();
    float d = c.getVector().dist(coordinates3D);
    fill(100, 100, 3000/d);
-   ellipse(coordinates2D.x * width / cameraMagnitude + width/2, coordinates2D.y * height / cameraMagnitude + height/2, 100 / d, 100 / d);
+   ellipse(coordinates2D.x * width / cameraMagnitude + width/2, -coordinates2D.y * height / cameraMagnitude + height/2, 100 / d, 100 / d);
  }
  
  public void displayVector(Camera c){
@@ -28,9 +32,9 @@ public class Point{
    float d = c.getVector().dist(coordinates3D);
    PVector dir = vectorFunction(this.coordinates3D.x,this.coordinates3D.y);
    strokeWeight(1);
-   fill(100, 100, 3000/d);
-   ellipse(coordinates2D.x * width / cameraMagnitude + width/2,coordinates2D.y * height / cameraMagnitude + height/2,1,1);
-   line(coordinates2D.x * width / cameraMagnitude + width/2, coordinates2D.y * height / cameraMagnitude + height/2, coordinates2D.x * width / cameraMagnitude + width/2 + dir.x, coordinates2D.y * height / cameraMagnitude + height/2 - dir.y);
+   fill(100, 100, 30000/d);
+   ellipse(coordinates2D.x * width / cameraMagnitude + width/2,-coordinates2D.y * height / cameraMagnitude + height/2,1,1);
+   line(coordinates2D.x * width / cameraMagnitude + width/2,- coordinates2D.y * height / cameraMagnitude + height/2, coordinates2D.x * width / cameraMagnitude + width/2 + dir.x, -coordinates2D.y * height / cameraMagnitude + height/2 - dir.y);
  }
  
  public PVector vectorFunction(float x, float y){
@@ -39,5 +43,20 @@ public class Point{
      return new PVector(0,0);
    }
    return new PVector(1,a).setMag(100 / cameraMagnitude);
+ }
+ 
+ public float displayIntegral(Camera c, float m){
+   float cameraMagnitude = c.getMag();
+   float d = c.getVector().dist(coordinates3D);
+   strokeWeight(1);
+   if (coordinates2D.y > 0){
+     fill(240, 100, 100);
+   }
+   else{
+     fill(0, 100, 100);
+   }
+   ellipse(coordinates2D.x * width / cameraMagnitude + width/2, -coordinates2D.y * height / cameraMagnitude + height/2,1,1); // Point
+   rect(coordinates2D.x * width / cameraMagnitude + width/2, -coordinates2D.y * height / cameraMagnitude + height/2,m*width/cameraMagnitude, coordinates2D.y * height / cameraMagnitude); // Small Rectangle representing portion of area
+   return m * coordinates2D.y;
  }
 }

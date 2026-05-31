@@ -4,7 +4,7 @@ public class InputSystem{
  private String input;
  private String inputPostfix;
  
- private boolean blink = false;
+ private boolean Polar = false;
  
  public InputSystem(){
    input = "";
@@ -13,6 +13,10 @@ public class InputSystem{
  
  public void addChar(String c){
   input += c;
+ }
+ 
+ public void flipPolar(){
+   Polar = !Polar;
  }
  
  public void remChar(){
@@ -58,17 +62,33 @@ public class InputSystem{
     String[] stringArr = expression.split(" ");
     for (String s: stringArr){
       try{
-        if (s.equals("x")){
-         stack.addFirst(x); 
+        if (!Polar){
+          if (s.equals("x")){
+           stack.addFirst(x); 
+          }
+          else if (s.equals("y")){
+           stack.addFirst(y); 
+          }
+          else if (s.equals("z")){
+           stack.addFirst(z); 
+          }
+          else {
+            stack.addFirst(Float.parseFloat(s));
+          }
         }
-        else if (s.equals("y")){
-         stack.addFirst(y); 
-        }
-        else if (s.equals("z")){
-         stack.addFirst(z); 
-        }
-        else {
-          stack.addFirst(Float.parseFloat(s));
+        else{
+          if (s.equals("r")){
+           stack.addFirst(sqrt(x*x+y*y+z*z)); 
+          }
+          else if (s.equals("\u03B8")){
+           stack.addFirst(atan2(x,y)); 
+          }
+          else if (s.equals("\u03C6")){
+           stack.addFirst(acos(z / sqrt(x*x+y*y+z*z))); 
+          }
+          else {
+            stack.addFirst(Float.parseFloat(s));
+          }
         }
       }
       catch (Exception e){
@@ -122,7 +142,7 @@ public class InputSystem{
       ArrayDeque<String> stack = new ArrayDeque<>();
       String[] stringArr = infix.split(" ");
       for (String s: stringArr){
-        if (s.equals("x") || s.equals("y") || s.equals("z")){
+        if (s.equals("x") || s.equals("y") || s.equals("z") || s.equals("r") || s.equals("\u03B8") || s.equals("\u03C6")){
           if (stack.size() != 0){
             answer += " ";
           }
