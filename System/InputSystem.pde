@@ -21,8 +21,8 @@ public class InputSystem{
  
  public void remChar(){
   if (input.length() > 0){
-   if (input.charAt(input.length()-1) == ' '){
-     input = input.substring(0,input.length()-2); 
+   if (input.charAt(input.length()-1) == ' ' && input.length() > 1){
+     input = input.substring(0,input.length()-2);
    }
    input = input.substring(0,input.length()-1); 
   }
@@ -78,13 +78,13 @@ public class InputSystem{
         }
         else{
           if (s.equals("r")){
-           stack.addFirst(sqrt(x*x+y*y+z*z)); 
+           stack.addFirst(sqrt(x*x+y*y+z*z)); // Conversion of rectangular to polar
           }
           else if (s.equals("\u03B8")){
-           stack.addFirst(atan2(x,y)); 
+           stack.addFirst(atan2(x,y)); // Conversion of rectangular to polar
           }
           else if (s.equals("\u03C6")){
-           stack.addFirst(acos(z / sqrt(x*x+y*y+z*z))); 
+           stack.addFirst(acos(z / sqrt(x*x+y*y+z*z))); // Conversion of rectangular to polar
           }
           else {
             stack.addFirst(Float.parseFloat(s));
@@ -198,7 +198,7 @@ public class InputSystem{
       return answer;
     }
 
-    public float order(String s){ // From StackCalculator Lab
+    public float order(String s){ // From StackCalculator Lab (trigonomentric functions take priority over everything else [other than parentheses])
       if (s.equals("+") || s.equals("-")){
         return 1;
       }

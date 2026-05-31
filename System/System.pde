@@ -2,7 +2,7 @@ import java.util.*;
   
   private float pi = 3.14159263589;
   
-  private Camera camera = new Camera(100,pi/4+0.01,0.01+5*pi/4);
+  private Camera camera = new Camera(100,pi/4,5*pi/4);
   private InputSystem inputSys = new InputSystem();
   private Graph Graph;
   
@@ -18,7 +18,7 @@ import java.util.*;
   private PVector vertLine = new PVector(x1*z1,y1*z1,-(x1*x1 + y1*y1));
   private PVector horiLine = new PVector(y1,-x1, 0);
   
-  private String equation = "x * sin x + ( y - 5 ) ^ 2";
+  private String equation = "( x - 3 ) ^ 2 + ( y - 5 ) ^ 2 + ( z - 10 )"; // Can be preset
   
   private int Dimension = 3;
   private boolean Vector = false;
@@ -27,15 +27,40 @@ import java.util.*;
   private boolean Polar = false;
   
   void setup(){
-   size(500,500);
+    fullScreen();
+   //size(500,500);
    inputSys.setInput(equation);
    Graph = new Graph(inputSys, 0.25, Dimension, Vector);
+   
+   cameraMagnitude = camera.getMag();
+   cameraAngle_1 = camera.getAng1();
+   cameraAngle_2 = camera.getAng2();
+   cameraCords = camera.getVector();
+     
+   vertLine = camera.getVert();
+   horiLine = camera.getHori();
+   
+   x1 = cameraCords.x;
+   y1 = cameraCords.y;
+   z1 = cameraCords.z;
+   
    display();
   }
   
   void draw(){
     changeVariables();
     inputSys.display();
+    text("Dimension ('d'): " + Dimension + "D", 10, height-100);
+    text("Vector Mode Active ('v'): " + Vector, 10, height-80);
+    text("Derivative Mode Active (','): " + Derivative, 10, height-60);
+    text("Integral Mode Active ('i'): " + Integral, 10, height-40);
+    text("Polar Mode Active ('p'): " + Polar, 10, height-20);
+    text("('x'): x or r", width - 60, height-120);
+    text("('y'): y or \u03B8", width - 60, height-100);
+    text("('z'): z or \u03C6", width - 60, height-80);
+    text("('s'): sin", width - 60, height-60);
+    text("('c'): cos", width - 60, height-40);
+    text("('t'): tan", width - 60, height-20);
   }
   
   void keyPressed(){
@@ -59,10 +84,36 @@ import java.util.*;
     }
     if (key == 'e'){
       camera.setMag(cameraMagnitude+5);
+      
+      cameraMagnitude = camera.getMag();
+      cameraAngle_1 = camera.getAng1();
+      cameraAngle_2 = camera.getAng2();
+      cameraCords = camera.getVector();
+        
+      vertLine = camera.getVert();
+      horiLine = camera.getHori();
+      
+      x1 = cameraCords.x;
+      y1 = cameraCords.y;
+      z1 = cameraCords.z;
+      
       display();
     }
     if (key == 'q'){
       camera.setMag(cameraMagnitude-5);
+      
+      cameraMagnitude = camera.getMag();
+      cameraAngle_1 = camera.getAng1();
+      cameraAngle_2 = camera.getAng2();
+      cameraCords = camera.getVector();
+        
+      vertLine = camera.getVert();
+      horiLine = camera.getHori();
+      
+      x1 = cameraCords.x;
+      y1 = cameraCords.y;
+      z1 = cameraCords.z;
+      
       display();
     }
     if (((int) key >= (int) '0' && (int) key <= (int) '9') || key == 'x' || key == 'y' || key == 'z' || key == '.'){
@@ -101,11 +152,37 @@ import java.util.*;
       if (Dimension == 2){
         camera.setAng1(0);
         camera.setAng2(0);
+        
+        cameraMagnitude = camera.getMag();
+        cameraAngle_1 = camera.getAng1();
+        cameraAngle_2 = camera.getAng2();
+        cameraCords = camera.getVector();
+      
+        vertLine = camera.getVert();
+        horiLine = camera.getHori();
+    
+        x1 = cameraCords.x;
+        y1 = cameraCords.y;
+        z1 = cameraCords.z;
+        
         Graph = new Graph(inputSys, 0.1, Dimension, Vector);
       }
       else{
         camera.setAng1(pi/4+0.01);
         camera.setAng2(5*pi/4+0.01);
+        
+        cameraMagnitude = camera.getMag();
+        cameraAngle_1 = camera.getAng1();
+        cameraAngle_2 = camera.getAng2();
+        cameraCords = camera.getVector();
+      
+        vertLine = camera.getVert();
+        horiLine = camera.getHori();
+    
+        x1 = cameraCords.x;
+        y1 = cameraCords.y;
+        z1 = cameraCords.z;
+        
         Graph = new Graph(inputSys, 0.25, Dimension, Vector);
       }
       Graph.displayAxis();
@@ -141,14 +218,14 @@ import java.util.*;
     z1 = cameraCords.z;
   }
   
-  void keyReleased(){
+  void keyReleased(){ // For derivatives
     if (key == ',' && Dimension == 2 && !Vector && !Integral){
       display();
       Derivative = !Derivative;
     }
   }
   
-  void mouseDragged(){
+  void mouseDragged(){ // For derivatives
     if (Dimension == 2 && Derivative){
       Derivative d = new Derivative((mouseX-width/2) * cameraMagnitude / width, inputSys, Graph);
       Graph.display();
@@ -156,7 +233,15 @@ import java.util.*;
     }
   }
   
-  void display(){
+  void mouseClicked(){ // For derivatives
+    if (Dimension == 2 && Derivative){
+      Derivative d = new Derivative((mouseX-width/2) * cameraMagnitude / width, inputSys, Graph);
+      Graph.display();
+      d.display();
+    }
+  }
+  
+  void display(){ // General display function
     background(255);
     inputSys.display();
     if (Dimension == 2){
@@ -182,7 +267,7 @@ import java.util.*;
     Graph.displayAxis();
   }
   
-  void changeVariables(){
+  void changeVariables(){ // Switches from polar variables to rectangular or vice-versa
     String s = inputSys.getInput();
     String newS = "";
     for (int i = 0; i < s.length(); i++){
@@ -205,10 +290,10 @@ import java.util.*;
         if (c == 'r'){
           newS += "x";
         }
-        else if (c == '\u03B8'){
+        else if (c == '\u03B8'){ // Theta
           newS += "y";
         }
-        else if (c == '\u03C6'){
+        else if (c == '\u03C6'){ // Phi
           newS += "z";
         }
         else{

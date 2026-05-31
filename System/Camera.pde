@@ -14,7 +14,7 @@ public class Camera{
   private PVector vertLine;
   private PVector horiLine;
   
-  public Camera(float mag, float ang1, float ang2){
+  public Camera(float mag, float ang1, float ang2){ // Initializd with polar coordinates
     this.cameraMagnitude = mag;
     this.cameraAngle_1 = ang1;
     this.cameraAngle_2 = ang2;
@@ -60,20 +60,20 @@ public class Camera{
    return horiLine; 
   }
   
-  public void resetXYZ(){
+  public void resetXYZ(){ // Converts the Polar coordinates of the camera into rectangular coordinates
    cameraAngle_1 = (cameraAngle_1 + 2 * pi) % (2 * pi);
    cameraAngle_2 = (cameraAngle_2 + 2 * pi) % (2 * pi);
-   x = cameraMagnitude * cos(cameraAngle_1) *  sin(cameraAngle_2);
-   z = cameraMagnitude * cos(cameraAngle_2);
-   y = cameraMagnitude * sin(cameraAngle_1) * sin(cameraAngle_2);
+   x = cameraMagnitude * cos(cameraAngle_1) *  sin(cameraAngle_2); // Transformation equations (polar to rectangular)
+   z = cameraMagnitude * cos(cameraAngle_2); // Transformation equations (polar to rectangular)
+   y = cameraMagnitude * sin(cameraAngle_1) * sin(cameraAngle_2); // Transformation equations (polar to rectangular)
    cameraCords = new PVector(x,y,z);
    if (cameraAngle_1 == 0 && cameraAngle_2 == 0){
      vertLine = new PVector(0,1,0);
      horiLine = new PVector(1,0,0);
    }
    else{
-     vertLine = new PVector(-1,-y/x,x*x/z/x + y*y/z/x).mult(Math.signum(cos(cameraAngle_2))).mult(Math.signum(cos(cameraAngle_1)));
-     horiLine = new PVector(y, -x, 0).mult(Math.signum(sin(cameraAngle_2)));
+     vertLine = new PVector(-1,-y/x,x*x/z/x + y*y/z/x).mult(Math.signum(cos(cameraAngle_2))).mult(Math.signum(cos(cameraAngle_1))); // "Y" Axis
+     horiLine = new PVector(y, -x, 0).mult(Math.signum(sin(cameraAngle_2))); // "X" line
    }
   }
 }
